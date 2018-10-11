@@ -1,5 +1,4 @@
 #include "count_down_event.h"
-#include <iostream>
 
 namespace sync_prim
 {
