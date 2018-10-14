@@ -19,9 +19,9 @@ namespace sync_prim
         void wait_one();
 
         template<typename rep, typename period>
-        void wait_one(std::chrono::duration<rep, period> limit)
+        bool wait_one(std::chrono::duration<rep, period> limit)
         {
-            reset_event_.wait_one(limit);
+            return reset_event_.wait_one(limit);
         };
 
         void set();

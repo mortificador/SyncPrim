@@ -19,14 +19,18 @@ namespace sync_prim
 
     bool count_down_event::try_add()
     {
+        return try_add(1);
+    }
+
+    bool count_down_event::try_add(std::size_t to_add)
+    {
         auto curr_val = count_.load();
         if (curr_val != 0)
         {
-            auto wanted = curr_val + 1;
+            auto wanted = curr_val + to_add;
             while (count_.compare_exchange_weak(curr_val, wanted) == false)
             {
-                curr_val = count_.load();
-                wanted = curr_val + 1;
+                wanted = curr_val + to_add;
             }
 
             return true;
@@ -57,7 +61,6 @@ namespace sync_prim
         auto wanted = val - 1;
         while (count_.compare_exchange_weak(val, wanted) == false)
         {
-            val = count_.load();
             // If val is zero here, someone else
             // set it to zero while we were trying
             // to set it to zero. There's nothing else

@@ -16,13 +16,24 @@ namespace sync_prim
         void add(std::size_t count);
 
         bool try_add();
+        bool try_add(std::size_t count);
 
         void wait();
+
+        template<typename rep, typename period>
+        bool wait(std::chrono::duration<rep, period> limit)
+        {
+            std::mutex m;
+            std::unique_lock<std::mutex> local_lock(m);
+
+            return cond_var_.wait_for(local_lock, limit, [this] {
+                return count_.load() == 0;
+            });
+        }
 
         // Subtracts one to the countdown and notify
         // the threads waiting if the count reaches zero
         bool signal();
-
 
     private:
         std::condition_variable cond_var_;

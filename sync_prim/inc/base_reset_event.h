@@ -18,14 +18,14 @@ namespace sync_prim
         void wait_one();
 
         template<typename rep, typename period>
-        void wait_one(std::chrono::duration<rep, period> limit)
+        bool wait_one(std::chrono::duration<rep, period> limit)
         {
             std::unique_lock<std::mutex> l(m_);
             if (signaled_ == false)
             {
                 std::mutex mutex;
                 std::unique_lock<std::mutex> local_lock(mutex);
-                cond_var_.wait(local_lock, [this, &l]() {
+                return cond_var_.wait_for(local_lock, limit, [this, &l]() {
                     if (l.owns_lock())
                     {
                         l.unlock();
@@ -33,6 +33,8 @@ namespace sync_prim
                     return signaled_;
                 });
             }
+
+            return true;
         };
 
         // In C# Set() returns false only if the kernel call failed
